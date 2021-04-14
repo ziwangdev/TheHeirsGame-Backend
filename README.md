@@ -1,2 +1,2 @@
 # TheHeirsGame-Backend
-Backend for a multi-player monopoly style game called The Heirs, developed using Express.js
+This is the backend for a multiplayer monopoly-style game called The Heirs, developed using Express.js.
