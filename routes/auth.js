@@ -21,7 +21,8 @@ const getGamesData = (ref) => {
     });
 }
 
-router.post('/post/start-game',function (req, res){
+// Player joins room via joinRoomApi() from frontend
+router.post('/post/join-room',function (req, res){
     res.setHeader("Access-Control-Allow-Origin", "*");
     console.log("Received a post request!")
     console.log(req.body);
@@ -51,11 +52,27 @@ router.post('/post/start-game',function (req, res){
                 res.status(400).send('Error when reading games data from realtime database.');
                 return;
             })
-
     }
     // If roomID is empty, reject
     else{
-        res.status(400).send('Please provide a room ID!');
+        res.status(400).send('room ID was empty.');
+        return;
+    }
+});
+
+// Host creates room
+router.post('/post/create-room',function (req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    console.log("Received a post request!")
+    console.log(req.body);
+    let roomID = req.body.roomID ? req.body.roomID : null;
+    // If roomID is not empty, write room data to realtime database
+    if (roomID) {
+
+    }
+    // If room ID empty, reject
+    else{
+        res.status(400).send('room ID was empty.');
         return;
     }
 });
