@@ -20,6 +20,18 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+exports.serve = server;
+
+const io = require("socket.io")(server, {
+    cors: {
+        origin: "*", // handling cors for all client addresses
+        // origin: "http://localhost:3001" also works but only for port 3001 on localhost
+        methods: ["GET", "POST"]
+    }
+});
+io.on('connection', (socket) => {
+    console.log('a user connected');
+});
 
 /**
  * Listen on provided port, on all network interfaces.
