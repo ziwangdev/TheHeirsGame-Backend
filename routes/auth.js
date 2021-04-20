@@ -18,6 +18,7 @@ const createRoom = (roomID, hostName) => {
         roomsRef.once('value')
             .then((snapshot) => {
                 let roomExists = snapshot.hasChild(getRoomName(roomID));
+                // If room doesn't exist, it will be created user the given host name
                 if(!roomExists){
                     let roomName = getRoomName(roomID)
                     let refPath = 'rooms/' + roomName
@@ -30,32 +31,44 @@ const createRoom = (roomID, hostName) => {
                         'day': 1,
                         'players':{
                             'player1':{
-                                'name':'未连接',
+                                'name':'',
                                 'cash':0,
                                 'property':0
                             },
                             'player2':{
-                                'name':'未连接',
+                                'name':'',
                                 'cash':0,
                                 'property':0
                             },
                             'player3':{
-                                'name':'未连接',
+                                'name':'',
                                 'cash':0,
                                 'property':0
                             },
                             'player4':{
-                                'name':'未连接',
+                                'name':'',
                                 'cash':0,
                                 'property':0
                             }
                         }
                     };
                     firebaseApp.database().ref(refPath).set(roomData);
-                    resolve();
+                    resolve('房间创建成功！房间号为' + roomID + '。请邀请玩家加入游戏。');
                     return;
                 }
-                reject('Room already exists!')
+                else{
+                    // If room exists, host with the same name will choose if entering the created room again, or create a new room
+                    let rooms = snapshot.val();
+                    let roomsKeys = Object.keys(rooms);
+                    for(var i = 0; i < roomsKeys.length; i++){
+                        if(rooms[roomsKeys[i]].roomID == roomID && rooms[roomsKeys[i]].host == hostName){
+                            resolve('该房间已存在，是否作为主持重连此房间？');
+                        }
+                    }
+                    // If credentials don't match, reject the host
+                    reject('房间创建失败！该房间号已被使用。');
+                }
+
             })
 
     });
@@ -77,7 +90,7 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                             let playersKeys = Object.keys(players);
                             for (let i = 0; i < playersKeys.length; i = i + 1){
                                 if (players[playersKeys[i]].name === playerName){
-                                    resolve(playerName + ' came back!');
+                                    resolve('欢迎' + playerName + '回到游戏!');
                                     console.log(playerName + ' came back!')
                                     return;
                                 }
@@ -94,6 +107,11 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                         for (let i = 0; i < playersKeys.length; i = i + 1){
                             let thisCharacter = snapshot.val().players[playersKeys[i]].character
                             if (thisCharacter === characterName){
+                                if(snapshot.val().players[playersKeys[i]].name === playerName){
+                                    resolve('欢迎' + playerName + '回到游戏!');
+                                    console.log(playerName + ' came back!')
+                                    return;
+                                }
                                 console.log(playerName + ' selected a character that has already been chosen!');
                                 reject('角色已被他人选中！');
                                 return;
@@ -121,7 +139,8 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                     });
                     // Update number of players
                     roomsRef.child(getRoomName(roomID)).child('numPlayers').set(numPlayers)
-                    resolve();
+                    resolve('欢迎' + playerName + '作为' + characterName + '进入游戏！');
+                    returnl;
                 }
             })
             .catch((error) =>{
@@ -199,7 +218,7 @@ router.post('/post/join-room',function (req, res){
                         })
                         .catch((error) =>{
                             console.log(error);
-                            res.status(400).send(error); // trying to configur response message
+                            res.status(400).send(error);
                         })
                 }
                 else if(userName && identity === '观众'){
@@ -239,13 +258,13 @@ router.post('/post/create-room',function (req, res) {
     if (roomID) {
         let roomName = 'room ' + roomID;
         Promise.all([createRoom(roomID, hostName)])
-            .then(() => {
+            .then((message) => {
                 console.log('Created room! ')
-                res.send('Room created!');
+                res.send(message);
             })
             .catch((error) =>{
                 console.log('Failed to create room. ' + error)
-                res.status(400).send('创建房间失败！该房间号已被使用。');
+                res.status(400).send(error);
             })
     }
     // If room ID empty, reject
