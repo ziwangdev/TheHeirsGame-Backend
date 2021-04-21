@@ -8,8 +8,8 @@ var app = require('../app');
 var debug = require('debug')('theheirsbackend:server');
 var http = require('http');
 // Firebase instance and references
-const firebaseApp = require('../utils/firebaseInstance');
-const roomsRef = firebaseApp.database().ref('rooms').child('room 0001');
+const firebaseApp = require('../utils/firebaseInstance').instance;
+const roomsRef = firebaseApp.database().ref('rooms');
 const databaseRef = firebaseApp.database().ref();
 
 /**
@@ -27,7 +27,7 @@ var server = http.createServer(app);
 exports.server = server;
 
 // Socket.io configuration and methods
-
+var roomsLocalData = require('../utils/rooms');
 const io = require("socket.io")(server, {
     cors: {
         origin: "*", // handling cors for all client addresses
@@ -36,19 +36,42 @@ const io = require("socket.io")(server, {
     }
 });
 
+// CONNECTION
 io.on('connection', (socket) => {
-    // Broadcast update to users
-    console.log('*--- a user connected ---*');
+    // Let sockets join a room corresponding to the roomID in game
+    console.log('*--- a user connected ---*')
+    let roomID = socket.handshake.query.roomID;
+    // console.log(socket.handshake.query.roomID);
+    socket.join(roomID);
+    // Add roomID to local memory
+    roomsLocalData.addRoom(roomID);
+    // DISCONNECTION
     socket.on('disconnect', () => {
         console.log('*--- user disconnected ---*');
     })
 });
 
+// Listen for game update in each room
 roomsRef.on('value', (snapshot) => {
-    console.log('value change detected!');
-    let data = snapshot.val();
-    io.emit('gameDataUpdate', data);
+    console.log('Got new game data! Sending data to rooms now.');
+    let rooms = roomsLocalData.rooms;
+    let snapshotVal = snapshot.val();
+    console.log(snapshotVal);
+    for(const key in snapshotVal){
+        let gameData = snapshotVal[key];
+        let roomID = gameData.roomID;
+        if (rooms.includes(roomID)){
+            // Send game data to sockets in this room
+            io.to(roomID).emit('gameDataUpdate', gameData);
+            console.log('Sent game data update to sockets in room ' + roomID);
+        }
+    }
 })
+
+module.exports.broadcastMessage = function (message){
+
+};
+
 
 /**
  * Listen on provided port, on all network interfaces.

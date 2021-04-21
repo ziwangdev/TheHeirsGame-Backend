@@ -1,6 +1,7 @@
 const express = require('express');
-const firebaseApp = require('../utils/firebaseInstance');
+const firebaseApp = require('../utils/firebaseInstance').instance;
 const router = express.Router();
+const www = require('../bin/www');
 
 /* GET user authentication on welcome page*/
 router.get('/', function(req, res){
@@ -19,6 +20,7 @@ const createRoom = (roomID, hostName) => {
             .then((snapshot) => {
                 let roomExists = snapshot.hasChild(getRoomName(roomID));
                 // If room doesn't exist, it will be created user the given host name
+                let date = Date();
                 if(!roomExists){
                     let roomName = getRoomName(roomID)
                     let refPath = 'rooms/' + roomName
@@ -50,6 +52,9 @@ const createRoom = (roomID, hostName) => {
                                 'cash':0,
                                 'property':0
                             }
+                        },
+                        'broadcasts':{
+                            '0': '房间已创建。'
                         }
                     };
                     firebaseApp.database().ref(refPath).set(roomData);
@@ -90,8 +95,10 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                             let playersKeys = Object.keys(players);
                             for (let i = 0; i < playersKeys.length; i = i + 1){
                                 if (players[playersKeys[i]].name === playerName){
-                                    resolve('欢迎' + playerName + '回到游戏!');
-                                    console.log(playerName + ' came back!')
+                                    let message = '欢迎' + playerName + '回到游戏!'
+                                    resolve(message);
+                                    console.log(message);
+                                    firebaseApp.pushBroadcast(message, roomID);
                                     return;
                                 }
                             }
@@ -140,7 +147,8 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                     // Update number of players
                     roomsRef.child(getRoomName(roomID)).child('numPlayers').set(numPlayers)
                     resolve('欢迎' + playerName + '作为' + characterName + '进入游戏！');
-                    returnl;
+
+                    return;
                 }
             })
             .catch((error) =>{

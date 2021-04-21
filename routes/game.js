@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const firebaseApp = require('../utils/firebaseInstance');
+const firebaseApp = require('../utils/firebaseInstance').instance;
 
 const databaseRef = firebaseApp.database().ref();
 const roomsRef = firebaseApp.database().ref('rooms');
@@ -14,7 +14,7 @@ function getRoomName(roomID){
 router.post('/post/load-game', function(req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     console.log('Received a POST request to retrieve game data!');
-    console.log(req.body);
+    // console.log(req.body);
     let roomID = req.body.roomID ? req.body.roomID : null;
     let identity = req.body.identity? req.body.identity : null;
     let userName = req.body.userName? req.body.userName : null;
