@@ -1,5 +1,6 @@
 const express = require('express');
 const firebaseApp = require('../utils/firebaseInstance').instance;
+const firebase = require('../utils/firebaseInstance');
 const router = express.Router();
 const www = require('../bin/www');
 
@@ -58,7 +59,8 @@ const createRoom = (roomID, hostName) => {
                         }
                     };
                     firebaseApp.database().ref(refPath).set(roomData);
-                    resolve('房间创建成功！房间号为' + roomID + '。请邀请玩家加入游戏。');
+                    let message = '房间创建成功！房间号为' + roomID + '。请邀请玩家加入游戏。'
+                    resolve(message);
                     return;
                 }
                 else{
@@ -98,7 +100,7 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                                     let message = '欢迎' + playerName + '回到游戏!'
                                     resolve(message);
                                     console.log(message);
-                                    firebaseApp.pushBroadcast(message, roomID);
+                                    firebase.pushBroadcast(message, roomID);
                                     return;
                                 }
                             }
@@ -115,8 +117,10 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                             let thisCharacter = snapshot.val().players[playersKeys[i]].character
                             if (thisCharacter === characterName){
                                 if(snapshot.val().players[playersKeys[i]].name === playerName){
-                                    resolve('欢迎' + playerName + '回到游戏!');
-                                    console.log(playerName + ' came back!')
+                                    let message = '欢迎' + playerName + '回到游戏!'
+                                    resolve(message);
+                                    console.log(message);
+                                    firebase.pushBroadcast(message, roomID);
                                     return;
                                 }
                                 console.log(playerName + ' selected a character that has already been chosen!');
@@ -146,8 +150,9 @@ const roomAddPlayer = (roomID, playerName, characterName) => {
                     });
                     // Update number of players
                     roomsRef.child(getRoomName(roomID)).child('numPlayers').set(numPlayers)
-                    resolve('欢迎' + playerName + '作为' + characterName + '进入游戏！');
-
+                    let message = '欢迎' + playerName + '作为' + characterName + '进入游戏！';
+                    resolve(message);
+                    firebase.pushBroadcast(message, roomID);
                     return;
                 }
             })
