@@ -3,6 +3,7 @@ const firebaseApp = require('../utils/firebaseInstance').instance;
 const firebase = require('../utils/firebaseInstance');
 const router = express.Router();
 const www = require('../bin/www');
+const initialMapData = require('../utils/mapData');
 
 /* GET user authentication on welcome page*/
 router.get('/', function(req, res){
@@ -56,7 +57,8 @@ const createRoom = (roomID, hostName) => {
                         },
                         'broadcasts':{
                             '0': '房间已创建。'
-                        }
+                        },
+                        mapData: initialMapData
                     };
                     firebaseApp.database().ref(refPath).set(roomData);
                     let message = '房间创建成功！房间号为' + roomID + '。请邀请玩家加入游戏。'
