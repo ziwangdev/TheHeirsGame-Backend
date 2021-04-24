@@ -3,30 +3,38 @@ module.exports.mapData = {
         player1: {
             spawnPoint: 'x05y07',
             position: 'x05y07',
+            prevPosition: 'x05y08',
             theirTurn: true,
             effect: null,
-            facing: 'up'
+            facing: 'up',
+            prevFacing: 'up',
         },
         player2: {
             spawnPoint: 'x10y05',
             position: 'x10y05',
+            prevPosition: 'x09y05',
             theirTurn: false,
             effect: null,
-            facing: 'down'
+            facing: 'down',
+            prevFacing: 'down',
         },
         player3: {
             spawnPoint: 'x19y18',
             position: 'x19y18',
+            prevPosition: 'x19y17',
             theirTurn: false,
             effect: null,
-            facing: 'up'
+            facing: 'up',
+            prevFacing: 'up',
         },
         player4: {
             spawnPoint: 'x09y13',
             position: 'x09y13',
+            prevPosition: 'x09y12',
             theirTurn: false,
             effect: null,
-            facing: 'right'
+            facing: 'right',
+            prevFacing: 'right',
         }
     },
     objects: {
@@ -123,7 +131,7 @@ module.exports.mapData = {
         x06y18: {
             type: 'path-vertical',
             land: 'C2',
-            adjacent: ['x05y17', 'x07y18']
+            adjacent: ['x05y18', 'x07y18']
         },
         x07y18: {
             type: 'path-vertical',
@@ -185,7 +193,7 @@ module.exports.mapData = {
         },
         x19y18: {
             type: 'plus-20000-cash',
-            adjacent: ['x18y18', 'x17y17']
+            adjacent: ['x18y18', 'x19y17']
         },
         x19y17: {
             type: 'plus-1-card',
@@ -213,12 +221,12 @@ module.exports.mapData = {
         },
         x19y11: {
             type: 'shop',
-            adjacent: ['x19y12', 'x19y10']
+            adjacent: ['x19y12', 'x18y11']
         },
         x18y11: {
             type: 'path-vertical',
             land: 'E1',
-            adjacent: ['x11y18', 'x13y18']
+            adjacent: ['x17y11', 'x19y11']
         },
         x17y11: {
             type: 'path-vertical',
@@ -336,7 +344,7 @@ module.exports.mapData = {
         },
         x09y02: {
             type: 'plus-50000-cash',
-            adjacent: ['x09y03', 'x09y01']
+            adjacent: ['x09y03']
         },
         x09y01: {
             type: 'hospital',
@@ -410,17 +418,17 @@ module.exports.mapData = {
             adjacent: ['x10y11', 'x12y11']
         },
         x12y11: {
-            type: 'land',
+            type: 'path-vertical',
             land: 'E5',
             adjacent: ['x11y11', 'x13y11']
         },
         x13y11: {
-            type: 'land',
+            type: 'path-vertical',
             land: 'E5',
             adjacent: ['x12y11', 'x14y11']
         },
         x14y11: {
-            type: 'land',
+            type: 'path-vertical',
             land: 'E4',
             adjacent: ['x13y11', 'x15y11']
         }
